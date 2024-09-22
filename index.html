@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            text-align: center;
+        }
+        #qrCode {
+            width: 250px;
+            height: 250px;
+            margin: 20px auto;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #qrCode img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0069d9;
+        }
+        .alert {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        h2 {
+            color: #007bff;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center mb-4">QR Code Generator</h2>
+        <div class="form-group">
+            <label for="linkInput">Enter a Link:</label>
+            <input type="text" class="form-control" id="linkInput" placeholder="Enter a link">
+        </div>
+        <div class="form-group">
+            <label for="errorCorrectionLevel">Error Correction Level:</label>
+            <select class="form-control" id="errorCorrectionLevel">
+                <option value="L" title="Best for clean environments">Low (7%)</option>
+                <option value="M" title="Good balance for most uses">Medium (15%)</option>
+                <option value="Q" title="For QR codes at risk of damage">Quartile (25%)</option>
+                <option value="H" title="For industrial use or when reliability is critical">High (30%)</option>
+            </select>
+        </div>
+        <button id="generateBtn" class="btn btn-primary btn-block">Generate QR Code</button>
+        <div id="qrCode"></div>
+        <button id="downloadBtn" class="btn btn-secondary btn-block mt-2" style="display: none;">Download QR Code</button>
+        <div id="alert" class="alert" role="alert"></div>
+        <div id="googleTranslate"></div>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script>
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        }, 'googleTranslate');
+    }
+</script>
+
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script>
+        const linkInput = document.getElementById('linkInput');
+        const errorCorrectionLevel = document.getElementById('errorCorrectionLevel');
+        const generateBtn = document.getElementById('generateBtn');
+        const qrCode = document.getElementById('qrCode');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const alertDiv = document.getElementById('alert');
+        const languageSelect = document.getElementById('languageSelect');
+        const translateBtn = document.getElementById('translateBtn');
+
+        generateBtn.addEventListener('click', generateQRCode);
+        linkInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateQRCode();
+            }
+        });
+
+        function generateQRCode() {
+            const link = linkInput.value;
+            if (link.trim() === '') {
+                showAlert('danger', 'Please enter a valid link.');
+                return;
+            }
+            try {
+                qrCode.innerHTML = '';
+                const qr = qrcode(0, errorCorrectionLevel.value);
+                qr.addData(link);
+                qr.make();
+                const qrImage = qr.createImgTag(5);
+                qrCode.innerHTML = qrImage;
+                
+                downloadBtn.style.display = 'block';
+                showAlert('success', 'QR Code generated!');
+            } catch (error) {
+                console.error('Error generating QR Code:', error);
+                showAlert('danger', 'Error generating QR Code. Please try again later.');
+            }
+        }
+
+        downloadBtn.addEventListener('click', () => {
+            const qrCodeImage = qrCode.querySelector('img');
+            if (qrCodeImage) {
+                const link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = qrCodeImage.src;
+                link.click();
+            } else {
+                showAlert('danger', 'No QR Code found to download.');
+            }
+        });
+
+        function showAlert(type, message) {
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            setTimeout(() => {
+                alertDiv.textContent = '';
+                alertDiv.className = 'alert';
+            }, 3000);
+        }
+
+        // Add tooltips to error correction level options
+        const options = errorCorrectionLevel.options;
+        for (let i = 0; i < options.length; i++) {
+            options[i].addEventListener('mouseover', function() {
+                const tooltip = document.createElement('span');
+                tooltip.className = 'tooltiptext';
+                tooltip.textContent = this.title;
+                this.parentNode.appendChild(tooltip);
+            });
+            options[i].addEventListener('mouseout', function() {
+                const tooltip = this.parentNode.querySelector('.tooltiptext');
+                if (tooltip) {
+                    tooltip.remove();
+                }
+            });
+        }
+
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'en,fr,es,de,ja,ko,zh-CN,zh-TW,ru,pt,it,ar,hi'}, 'googleTranslate');
+        }
+
+        translateBtn.addEventListener('click', () => {
+            const targetLanguage = languageSelect.value;
+            if (targetLanguage === 'en') {
+                showAlert('warning', 'Page is already in English.');
+                return;
+            }
+            google.translate.TranslateElement.getInstance().changeLanguage(targetLanguage);
+        });
+    </script>
+</body>
+</html>
