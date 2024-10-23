@@ -3,25 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futuristic QR Code Generator & Scanner</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>QR Code Generator & Scanner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=TH+Sarabun+New:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <style>
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            font-family: 'Roboto', sans-serif;
-            background-color: #0a192f;
-            color: #64ffda;
-        }
-        #particles-js {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
+            font-family: 'Playfair Display', serif;
+            color: #3B2F2F;
+            overflow-x: hidden;
         }
         .container {
             display: flex;
@@ -30,18 +23,20 @@
             min-height: 100vh;
             padding: 20px;
             box-sizing: border-box;
+            position: relative;
+            z-index: 10;
         }
         .app-container {
-            background-color: rgba(16, 33, 65, 0.8);
+            background-color: rgba(255, 215, 0, 0.2);
             border-radius: 20px;
             padding: 40px;
-            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.3);
             max-width: 500px;
             width: 100%;
             backdrop-filter: blur(10px);
         }
         h2 {
-            color: #64ffda;
+            color: #8B0000;
             text-align: center;
             margin-bottom: 30px;
             font-weight: 700;
@@ -55,8 +50,8 @@
         }
         .tab-button {
             background-color: transparent;
-            color: #64ffda;
-            border: 2px solid #64ffda;
+            color: #8B0000;
+            border: 2px solid #8B0000;
             padding: 10px 20px;
             margin: 0 10px;
             cursor: pointer;
@@ -65,27 +60,27 @@
             border-radius: 5px;
         }
         .tab-button.active {
-            background-color: #64ffda;
-            color: #0a192f;
+            background-color: #8B0000;
+            color: #FAF3E0;
         }
-        input[type="text"], select, input[type="color"], input[type="file"] {
+        input[type="text"], select, input[type="color"] {
             width: 100%;
             padding: 12px;
             margin-bottom: 20px;
-            background-color: rgba(100, 255, 218, 0.1);
-            border: 1px solid #64ffda;
+            background-color: rgba(255, 215, 0, 0.1);
+            border: 1px solid #8B0000;
             border-radius: 5px;
-            color: #64ffda;
+            color: #3B2F2F;
             font-size: 16px;
             transition: all 0.3s ease;
         }
         input[type="text"]:focus, select:focus {
             outline: none;
-            box-shadow: 0 0 5px #64ffda;
+            box-shadow: 0 0 5px #8B0000;
         }
         button {
-            background-color: #64ffda;
-            color: #0a192f;
+            background-color: #8B0000;
+            color: #FAF3E0;
             padding: 12px 20px;
             border: none;
             border-radius: 5px;
@@ -98,9 +93,9 @@
             margin-top: 20px;
         }
         button:hover {
-            background-color: #0a192f;
-            color: #64ffda;
-            box-shadow: 0 0 10px #64ffda;
+            background-color: #FAF3E0;
+            color: #8B0000;
+            box-shadow: 0 0 10px #8B0000;
         }
         #qrCode, #reader {
             width: 250px;
@@ -112,6 +107,7 @@
             align-items: center;
             border-radius: 10px;
             overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
         }
         .alert {
             margin-top: 20px;
@@ -121,9 +117,9 @@
             text-align: center;
         }
         .alert-success {
-            background-color: rgba(100, 255, 218, 0.2);
-            border: 1px solid #64ffda;
-            color: #64ffda;
+            background-color: rgba(139, 0, 0, 0.2);
+            border: 1px solid #8B0000;
+            color: #8B0000;
         }
         .alert-danger {
             background-color: rgba(255, 100, 100, 0.2);
@@ -131,33 +127,110 @@
             color: #ff6464;
         }
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .fade-in {
             animation: fadeIn 0.5s ease-in-out;
         }
+        .wave-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #FFD700, #FAF3E0);
+            z-index: -1;
+            overflow: hidden;
+        }
+        .gold-dust {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAxMDAwIDEwMDAiPjxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik0wIDB2MTAwMGgxMDAwdjB6IiB0cmFuc2Zvcm09InJvdGF0ZSg0NSAxMDAwIDUwMCkiLz48L3N2Zz4=');
+            background-size: cover;
+            animation: goldDust 20s linear infinite;
+        }
+        @keyframes goldDust {
+            0% { background-position: 0 0; }
+            100% { background-position: 1000px 1000px; }
+        }
+        .gold-light {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,215,0,0.5) 0%, rgba(255,215,0,0) 70%);
+            animation: goldLight 10s ease-in-out infinite;
+        }
+        @keyframes goldLight {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5); }
+        }
+        .sandstorm {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAxMDAwIDEwMDAiPjxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik0wIDB2MTAwMGgxMDAwdjB6IiB0cmFuc2Zvcm09InJvdGF0ZSg0NSAxMDAwIDUwMCkiLz48L3N2Zz4=');
+            background-size: cover;
+            animation: sandstorm 20s linear infinite;
+        }
+        @keyframes sandstorm {
+            0% { background-position: 0 0; }
+            100% { background-position: 1000px 1000px; }
+        }
+        .sand-particle {
+            position: absolute;
+            background: rgba(255, 215, 0, 0.8);
+            border-radius: 50%;
+            animation: sandParticle 5s linear infinite;
+        }
+        @keyframes sandParticle {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
     </style>
 </head>
 <body>
-    <div id="particles-js"></div>
+    <div class="wave-background">
+        <div class="sandstorm"></div>
+        <div class="gold-light"></div>
+        <div class="sand-particles">
+            <!-- Sand particles will be dynamically added here -->
+        </div>
+    </div>
     <div class="container">
         <div class="app-container fade-in">
-            <h2>Futuristic QR Code Generator & Scanner</h2>
+            <h2>QR Code Generator & Scanner</h2>
             <div class="tab-container">
                 <button class="tab-button active" data-tab="generate">Generate</button>
                 <button class="tab-button" data-tab="scan">Scan</button>
             </div>
             <div id="generate-tab" class="tab-content">
                 <input type="text" id="linkInput" placeholder="Enter a link">
-                <select id="errorCorrectionLevel">
-                    <option value="L">Low (7%)</option>
-                    <option value="M">Medium (15%)</option>
-                    <option value="Q">Quartile (25%)</option>
-                    <option value="H">High (30%)</option>
-                </select>
-                <input type="color" id="foregroundColor" value="#64ffda">
-                <input type="color" id="backgroundColor" value="#0a192f">
+                <input type="text" id="qrText" placeholder="Enter text for QR code">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <label for="textColor" style="margin-right: 10px;">Text Color:</label>
+                    <input type="color" id="textColor" value="#000000">
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <label for="textBackgroundColor" style="margin-right: 10px;">Text Background Color:</label>
+                    <input type="color" id="textBackgroundColor" value="#FFFFFF">
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <label for="foregroundColor" style="margin-right: 10px;">QR Foreground Color:</label>
+                    <input type="color" id="foregroundColor" value="#000000">
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <label for="backgroundColor" style="margin-right: 10px;">QR Background Color:</label>
+                    <input type="color" id="backgroundColor" value="#FFFFFF">
+                </div>
                 <input type="file" id="logo" accept="image/*">
                 <button id="generateBtn">Generate QR Code</button>
                 <div id="qrCode"></div>
@@ -174,7 +247,9 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const linkInput = document.getElementById('linkInput');
-            const errorCorrectionLevel = document.getElementById('errorCorrectionLevel');
+            const qrText = document.getElementById('qrText');
+            const textColor = document.getElementById('textColor');
+            const textBackgroundColor = document.getElementById('textBackgroundColor');
             const foregroundColor = document.getElementById('foregroundColor');
             const backgroundColor = document.getElementById('backgroundColor');
             const logo = document.getElementById('logo');
@@ -186,25 +261,7 @@
             const tabContents = document.querySelectorAll('.tab-content');
             
             let html5QrcodeScanner = null;
-            
-            // Particle.js configuration
-            particlesJS('particles-js', {
-                particles: {
-                    number: { value: 80, density: { enable: true, value_area: 800 } },
-                    color: { value: "#64ffda" },
-                    shape: { type: "circle" },
-                    opacity: { value: 0.5, random: false },
-                    size: { value: 3, random: true },
-                    line_linked: { enable: true, distance: 150, color: "#64ffda", opacity: 0.4, width: 1 },
-                    move: { enable: true, speed: 6, direction: "none", random: false, straight: false, out_mode: "out", bounce: false }
-                },
-                interactivity: {
-                    detect_on: "canvas",
-                    events: { onhover: { enable: true, mode: "repulse" }, onclick: { enable: true, mode: "push" }, resize: true },
-                    modes: { repulse: { distance: 100, duration: 0.4 }, push: { particles_nb: 4 } }
-                },
-                retina_detect: true
-            });
+            let combinedCanvas = null;
             
             generateBtn.addEventListener('click', generateQRCode);
             downloadBtn.addEventListener('click', downloadQRCode);
@@ -228,67 +285,113 @@
                 }
             }
             
-            function generateQRCode() {
+            async function generateQRCode() {
                 const link = linkInput.value;
+                const text = qrText.value;
+                
                 if (link.trim() === '') {
                     showAlert('danger', 'Please enter a valid link.');
                     return;
                 }
+                
                 try {
                     qrCode.innerHTML = '';
-                    const qr = qrcode(0, errorCorrectionLevel.value);
-                    qr.addData(link);
-                    qr.make();
-                    const canvas = document.createElement('canvas');
-                    const size = qr.getModuleCount() * 5;
-                    canvas.width = size;
-                    canvas.height = size;
-                    const ctx = canvas.getContext('2d');
-                    
-                    // Draw QR code
-                    for (let row = 0; row < qr.getModuleCount(); row++) {
-                        for (let col = 0; col < qr.getModuleCount(); col++) {
-                            ctx.fillStyle = qr.isDark(row, col) ? foregroundColor.value : backgroundColor.value;
-                            const w = (Math.ceil((col + 1) * 5) - Math.floor(col * 5));
-                            const h = (Math.ceil((row + 1) * 5) - Math.floor(row * 5));
-                            ctx.fillRect(Math.round(col * 5), Math.round(row * 5), w, h);
-                        }
+                    if (text.trim() !== '') {
+                        const textElement = document.createElement('div');
+                        textElement.textContent = text;
+                        textElement.style.textAlign = 'center';
+                        textElement.style.marginBottom = '10px';
+                        textElement.style.backgroundColor = textBackgroundColor.value;
+                        textElement.style.color = textColor.value;
+                        textElement.style.padding = '5px';
+                        qrCode.appendChild(textElement);
                     }
-                    
-                    // Add logo if uploaded
-                    if (logo.files && logo.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const logoImg = new Image();
-                            logoImg.onload = function() {
-                                const logoSize = size * 0.2; // Logo size is 20% of QR code size
-                                const logoX = (size - logoSize) / 2;
-                                const logoY = (size - logoSize) / 2;
-                                ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-                                qrCode.appendChild(canvas);
-                                downloadBtn.style.display = 'block';
-                            };
-                            logoImg.src = e.target.result;
-                        };
-                        reader.readAsDataURL(logo.files[0]);
-                    } else {
-                        qrCode.appendChild(canvas);
-                        downloadBtn.style.display = 'block';
-                    }
-                    
-                    showAlert('success', 'QR Code generated!');
+                    combinedCanvas = generateQR(link, text);
                 } catch (error) {
                     console.error('Error generating QR Code:', error);
                     showAlert('danger', 'Error generating QR Code. Please try again later.');
                 }
             }
             
+            function generateQR(data, text) {
+                const qr = qrcode(0, 'H'); // Default to high error correction level
+                qr.addData(data);
+                qr.make();
+                const size = qr.getModuleCount() * 5;
+                const qrCanvas = document.createElement('canvas');
+                qrCanvas.width = size;
+                qrCanvas.height = size;
+                const ctx = qrCanvas.getContext('2d');
+                
+                // Draw QR code
+                for (let row = 0; row < qr.getModuleCount(); row++) {
+                    for (let col = 0; col < qr.getModuleCount(); col++) {
+                        ctx.fillStyle = qr.isDark(row, col) ? foregroundColor.value : backgroundColor.value;
+                        const w = (Math.ceil((col + 1) * 5) - Math.floor(col * 5));
+                        const h = (Math.ceil((row + 1) * 5) - Math.floor(row * 5));
+                        ctx.fillRect(Math.round(col * 5), Math.round(row * 5), w, h);
+                    }
+                }
+                
+                // Add logo if uploaded
+                if (logo.files && logo.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const logoImg = new Image();
+                        logoImg.onload = function() {
+                            const logoSize = size * 0.2; // Logo size is 20% of QR code size
+                            const logoX = (size - logoSize) / 2;
+                            const logoY = (size - logoSize) / 2;
+                            ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+                            qrCode.appendChild(qrCanvas);
+                            downloadBtn.style.display = 'block';
+                            combinedCanvas = combineCanvas(qrCanvas, text);
+                        };
+                        logoImg.src = e.target.result;
+                    };
+                    reader.readAsDataURL(logo.files[0]);
+                } else {
+                    qrCode.appendChild(qrCanvas);
+                    downloadBtn.style.display = 'block';
+                    combinedCanvas = combineCanvas(qrCanvas, text);
+                }
+                
+                showAlert('success', 'QR Code generated!');
+                return combinedCanvas;
+            }
+            
+            function combineCanvas(qrCanvas, text) {
+                const combinedCanvas = document.createElement('canvas');
+                const combinedCtx = combinedCanvas.getContext('2d');
+                const textHeight = 30; // Adjust this value as needed
+                combinedCanvas.width = qrCanvas.width;
+                combinedCanvas.height = qrCanvas.height + textHeight;
+                
+                // Draw text background
+                if (text) {
+                    combinedCtx.fillStyle = textBackgroundColor.value;
+                    combinedCtx.fillRect(0, 0, combinedCanvas.width, textHeight);
+                }
+                
+                // Draw text
+                if (text) {
+                    combinedCtx.font = '16px Arial';
+                    combinedCtx.fillStyle = textColor.value;
+                    combinedCtx.textAlign = 'center';
+                    combinedCtx.fillText(text, combinedCanvas.width / 2, textHeight - 5);
+                }
+                
+                // Draw QR code
+                combinedCtx.drawImage(qrCanvas, 0, textHeight);
+                
+                return combinedCanvas;
+            }
+            
             function downloadQRCode() {
-                const canvas = qrCode.querySelector('canvas');
-                if (canvas) {
+                if (combinedCanvas) {
                     const link = document.createElement('a');
                     link.download = 'qrcode.png';
-                    link.href = canvas.toDataURL('image/png');
+                    link.href = combinedCanvas.toDataURL('image/png');
                     link.click();
                 } else {
                     showAlert('danger', 'No QR Code found to download.');
@@ -315,17 +418,60 @@
             
             function onScanSuccess(decodedText, decodedResult) {
                 console.log(`Code matched = ${decodedText}`, decodedResult);
-                document.getElementById('scanResult').innerHTML = `
+                const scanResultDiv = document.getElementById('scanResult');
+                scanResultDiv.innerHTML = `
                     <div class="alert alert-success fade-in">
                         <h4>QR Code Scanned Successfully</h4>
-                        <p>Content: ${decodedText}</p>
+                        <p id="scannedText" style="cursor: pointer;">Content: ${decodedText}</p>
+                        ${decodedText.startsWith('data:') ? `<a href="${decodedText}" download="scanned_file">Download File</a>` : ''}
                     </div>
                 `;
+                const scannedText = document.getElementById('scannedText');
+                scannedText.addEventListener('click', () => {
+                    copyToClipboard(decodedText);
+                });
             }
             
             function onScanFailure(error) {
                 // Handle scan failure, usually better to ignore and keep scanning.
                 console.warn(`Code scan error = ${error}`);
+            }
+            
+            function copyToClipboard(text) {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showAlert('success', 'Content copied to clipboard!');
+                } catch (err) {
+                    showAlert('danger', 'Failed to copy content to clipboard.');
+                }
+                document.body.removeChild(textArea);
+            }
+            
+            // Scroll-triggered animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.tab-content').forEach(el => observer.observe(el));
+            
+            // Create sand particles
+            const sandParticlesContainer = document.querySelector('.sand-particles');
+            for (let i = 0; i < 100; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'sand-particle';
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.animationDuration = `${Math.random() * 5 + 3}s`;
+                particle.style.width = `${Math.random() * 3 + 1}px`;
+                particle.style.height = particle.style.width;
+                sandParticlesContainer.appendChild(particle);
             }
         });
     </script>
