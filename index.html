@@ -196,6 +196,17 @@
             0% { transform: translateY(-100%); }
             100% { transform: translateY(100vh); }
         }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .back-button {
+            margin-top: 10px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -242,6 +253,9 @@
             <div id="scan-tab" class="tab-content" style="display: none;">
                 <div id="reader"></div>
                 <div id="scanResult"></div>
+                <p>Upload QR Code Image for Backup Scan:</p>
+                <iframe id="zxingIframe" src="https://zxing.org/w/decode.jspx" frameborder="0"></iframe>
+                <button id="backToDecoder" class="back-button">Back to QR Code Decoder</button>
             </div>
             <div id="alert" class="alert" role="alert"></div>
         </div>
@@ -317,7 +331,7 @@
             }
             
             function generateQR(data, text) {
-                const qr = qrcode(0, 'H'); // Default to high error correction level
+                const qr = qrcode(0, 'M'); // Change to Medium error correction level
                 qr.addData(data);
                 qr.make();
                 const size = qr.getModuleCount() * 5;
@@ -476,6 +490,14 @@
                 particle.style.height = particle.style.width;
                 sandParticlesContainer.appendChild(particle);
             }
+
+            // Add event listener to the back button
+            const backButton = document.getElementById('backToDecoder');
+            const zxingIframe = document.getElementById('zxingIframe');
+
+            backButton.addEventListener('click', () => {
+                zxingIframe.src = 'https://zxing.org/w/decode.jspx';
+            });
         });
     </script>
 </body>
