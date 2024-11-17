@@ -15,6 +15,7 @@
             font-family: 'Playfair Display', serif;
             color: #3B2F2F;
             overflow-x: hidden;
+            background: linear-gradient(to bottom, #FFD700, #FAF3E0);
         }
         .container {
             display: flex;
@@ -198,14 +199,17 @@
         }
         iframe {
             width: 100%;
-            height: 600px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            height: 200px;
+            border: none;
             margin-top: 20px;
+            background-color: #1c1c3a;
         }
-        .back-button {
-            margin-top: 10px;
-            display: block;
+        .color-preview {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #8B0000;
+            margin-left: 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -225,25 +229,29 @@
                 <button class="tab-button" data-tab="scan">Scan</button>
             </div>
             <div id="generate-tab" class="tab-content">
-                <input type="text" id="linkInput" placeholder="Enter a link">
-                <input type="text" id="qrText" placeholder="Enter text for QR code">
+                <input type="text" id="linkInput" placeholder="Enter a link" aria-label="Enter a link">
+                <input type="text" id="qrText" placeholder="Enter text for QR code" aria-label="Enter text for QR code">
                 <div style="display: flex; align-items: center; margin-bottom: 20px;">
                     <label for="textColor" style="margin-right: 10px;">Text Color:</label>
-                    <input type="color" id="textColor" value="#000000">
+                    <input type="color" id="textColor" value="#000000" aria-label="Text Color">
+                    <div class="color-preview" id="textColorPreview"></div>
                 </div>
                 <div style="display: flex; align-items: center; margin-bottom: 20px;">
                     <label for="textBackgroundColor" style="margin-right: 10px;">Text Background Color:</label>
-                    <input type="color" id="textBackgroundColor" value="#FFFFFF">
+                    <input type="color" id="textBackgroundColor" value="#FFFFFF" aria-label="Text Background Color">
+                    <div class="color-preview" id="textBackgroundColorPreview"></div>
                 </div>
                 <div style="display: flex; align-items: center; margin-bottom: 20px;">
                     <label for="foregroundColor" style="margin-right: 10px;">QR Foreground Color:</label>
-                    <input type="color" id="foregroundColor" value="#000000">
+                    <input type="color" id="foregroundColor" value="#000000" aria-label="QR Foreground Color">
+                    <div class="color-preview" id="foregroundColorPreview"></div>
                 </div>
                 <div style="display: flex; align-items: center; margin-bottom: 20px;">
                     <label for="backgroundColor" style="margin-right: 10px;">QR Background Color:</label>
-                    <input type="color" id="backgroundColor" value="#FFFFFF">
+                    <input type="color" id="backgroundColor" value="#FFFFFF" aria-label="QR Background Color">
+                    <div class="color-preview" id="backgroundColorPreview"></div>
                 </div>
-                <input type="file" id="logo" accept="image/*">
+                <input type="file" id="logo" accept="image/*" aria-label="Upload Logo">
                 <button id="generateBtn">Generate QR Code</button>
                 <div id="qrCode"></div>
                 <div style="display: flex; justify-content: center;">
@@ -253,9 +261,21 @@
             <div id="scan-tab" class="tab-content" style="display: none;">
                 <div id="reader"></div>
                 <div id="scanResult"></div>
-                <p>Upload QR Code Image for Backup Scan:</p>
-                <iframe id="zxingIframe" src="https://zxing.org/w/decode.jspx" frameborder="0"></iframe>
-                <button id="backToDecoder" class="back-button">Back to QR Code Decoder</button>
+                <p>Alternative Scan Decode:</p>
+                <p>Instructions:</p>
+                <ul>
+                    <li><strong>Raw Text:</strong> The decoded text from the QR code.</li>
+                    <li><strong>Raw Bytes:</strong> The raw bytes of the decoded QR code.</li>
+                    <li><strong>Barcode Format:</strong> The format of the barcode (e.g., QR_CODE).</li>
+                    <li><strong>Parsed Result Type:</strong> The type of the parsed result (e.g., TEXT).</li>
+                    <li><strong>Parsed Result:</strong> The parsed result of the QR code.</li>
+                </ul>
+                <!-- Form to send QR code image to ZXing API -->
+                <form id="qr-form" action="https://zxing.org/w/decode" method="POST" enctype="multipart/form-data" target="result-frame">
+                    <input type="file" name="f" accept="image/*" required>
+                    <button type="submit">Decode QR Code</button>
+                </form>
+                <iframe id="result-frame" name="result-frame"></iframe>
             </div>
             <div id="alert" class="alert" role="alert"></div>
         </div>
@@ -491,13 +511,19 @@
                 sandParticlesContainer.appendChild(particle);
             }
 
-            // Add event listener to the back button
-            const backButton = document.getElementById('backToDecoder');
-            const zxingIframe = document.getElementById('zxingIframe');
+            // Update color previews
+            const colorPreviews = {
+                textColor: document.getElementById('textColorPreview'),
+                textBackgroundColor: document.getElementById('textBackgroundColorPreview'),
+                foregroundColor: document.getElementById('foregroundColorPreview'),
+                backgroundColor: document.getElementById('backgroundColorPreview')
+            };
 
-            backButton.addEventListener('click', () => {
-                zxingIframe.src = 'https://zxing.org/w/decode.jspx';
-            });
+            for (const colorInput in colorPreviews) {
+                document.getElementById(colorInput).addEventListener('input', function() {
+                    colorPreviews[colorInput].style.backgroundColor = this.value;
+                });
+            }
         });
     </script>
 </body>
